@@ -64,7 +64,7 @@ if prompt := st.chat_input(
         with st.spinner("Searching knowledge base..."):
             try:
                 response = client.models.generate_content(
-                    model="gemini-3.6-flash ",
+                    model="model="gemini-2.5-flash",
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_INSTRUCTION,
