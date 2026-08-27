@@ -1,4 +1,4 @@
-import os
+0import os
 import streamlit as st
 from google import genai
 from google.genai import types
@@ -64,7 +64,7 @@ if prompt := st.chat_input(
         with st.spinner("Searching knowledge base..."):
             try:
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.6-flash ",
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         system_instruction=SYSTEM_INSTRUCTION,
