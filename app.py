@@ -34,7 +34,7 @@ mode = st.sidebar.radio(
 )
 
 # ==========================================
-# MODE 1: STUDY CHATBOT (GEMINI 2.5 FLASH)
+# MODE 1: STUDY CHATBOT (GEMINI 3.6 FLASH)
 # ==========================================
 if mode == "📚 Study Chatbot (Text / Notes / MCQs)":
     SYSTEM_INSTRUCTION = """
@@ -65,7 +65,7 @@ if mode == "📚 Study Chatbot (Text / Notes / MCQs)":
             with st.spinner("Searching knowledge base..."):
                 try:
                     response = client.models.generate_content(
-                        model="gemini-2.5-flash",
+                        model="gemini-3.6-flash",
                         contents=prompt,
                         config=types.GenerateContentConfig(
                             system_instruction=SYSTEM_INSTRUCTION,
