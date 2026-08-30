@@ -1,4 +1,5 @@
 import os
+import time
 import streamlit as st
 from google import genai
 from google.genai import types
@@ -34,7 +35,7 @@ mode = st.sidebar.radio(
 )
 
 # ==========================================
-# MODE 1: STUDY CHATBOT (GEMINI 3.6 FLASH)
+# MODE 1: STUDY CHATBOT WITH FALLBACK & RETRY
 # ==========================================
 if mode == "📚 Study Chatbot (Text / Notes / MCQs)":
     SYSTEM_INSTRUCTION = """
@@ -63,20 +64,36 @@ if mode == "📚 Study Chatbot (Text / Notes / MCQs)":
 
         with st.chat_message("assistant"):
             with st.spinner("Searching knowledge base..."):
-                try:
-                    response = client.models.generate_content(
-                        model="gemini-3.6-flash",
-                        contents=prompt,
-                        config=types.GenerateContentConfig(
-                            system_instruction=SYSTEM_INSTRUCTION,
-                            temperature=0.3,
-                        ),
-                    )
-                    answer = response.text
-                    st.markdown(answer)
-                    st.session_state.messages.append({"role": "assistant", "content": answer})
-                except Exception as e:
-                    st.error(f"Error generating response: {e}")
+                response_text = None
+                models_to_try = ["gemini-3.6-flash", "gemini-2.5-flash"]
+                
+                for model_name in models_to_try:
+                    for attempt in range(2):  # 2 retries per model
+                        try:
+                            response = client.models.generate_content(
+                                model=model_name,
+                                contents=prompt,
+                                config=types.GenerateContentConfig(
+                                    system_instruction=SYSTEM_INSTRUCTION,
+                                    temperature=0.3,
+                                ),
+                            )
+                            response_text = response.text
+                            break
+                        except Exception as e:
+                            if "503" in str(e) or "UNAVAILABLE" in str(e):
+                                time.sleep(2)  # Wait 2 seconds before retry
+                                continue
+                            else:
+                                break
+                    if response_text:
+                        break
+
+                if response_text:
+                    st.markdown(response_text)
+                    st.session_state.messages.append({"role": "assistant", "content": response_text})
+                else:
+                    st.error("Server par traffic boht zyada hai. Baraye meharbani 10-15 seconds baad dobara try karein!")
 
 # ==========================================
 # MODE 2: IMAGE GENERATOR
