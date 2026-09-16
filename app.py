@@ -15,12 +15,17 @@ st.write(
     "Ask anything about General Knowledge, Pakistan Affairs, Islamiyat, Science, Competitive Exam Test Prep (FPSC, SPSC, NTS, STS), or General Notes!"
 )
 
+# Fetch API Key cleanly
 api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
 
 if not api_key:
     st.error("⚠️ GEMINI_API_KEY missing hai! Streamlit Cloud ke Secrets mein API key save karein.")
     st.stop()
 
+# Strip any accidental whitespace/newlines
+api_key = api_key.strip()
+
+# Explicitly pass api_key to Client
 client = genai.Client(api_key=api_key)
 
 st.sidebar.header("🛠️ Choose Tool Mode")
