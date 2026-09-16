@@ -8,21 +8,24 @@ st.title("🎓 LEARN WITH SHAFIQ")
 api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
 
 if not api_key:
-    st.error("⚠️ GEMINI_API_KEY missing hai!")
+    st.error("⚠️ Secrets mein GEMINI_API_KEY missing hai!")
     st.stop()
 
 api_key = str(api_key).strip().strip('"').strip("'")
 
-# Configure client
-genai.configure(api_key=api_key)
+try:
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    st.success("✅ Legacy Client configured!")
+except Exception as e:
+    st.error(f"❌ Config Error: {e}")
+    st.stop()
 
 if prompt := st.chat_input("Ask anything..."):
     st.chat_message("user").markdown(prompt)
     with st.chat_message("assistant"):
         try:
-            # Using v1beta model endpoint
-            model = genai.GenerativeModel('gemini-1.5-flash')
             response = model.generate_content(prompt)
             st.markdown(response.text)
         except Exception as e:
-            st.error(f"❌ Error: {e}")
+            st.error(f"❌ Direct API Error Details:\n\n{e}")
