@@ -25,6 +25,7 @@ if not api_key:
     st.error("Please set your GEMINI_API_KEY environment variable in Streamlit Secrets to proceed.")
     st.stop()
 
+# Initialize Client
 client = genai.Client(api_key=api_key)
 
 # Sidebar Menu Selection
@@ -35,7 +36,7 @@ mode = st.sidebar.radio(
 )
 
 # ==========================================
-# MODE 1: STUDY CHATBOT WITH FALLBACK & RETRY
+# MODE 1: STUDY CHATBOT
 # ==========================================
 if mode == "📚 Study Chatbot (Text / Notes / MCQs)":
     SYSTEM_INSTRUCTION = """
@@ -65,35 +66,32 @@ if mode == "📚 Study Chatbot (Text / Notes / MCQs)":
         with st.chat_message("assistant"):
             with st.spinner("Searching knowledge base..."):
                 response_text = None
-                models_to_try = ["gemini-3.6-flash", "gemini-2.5-flash"]
+                
+                # Standard active stable models list
+                models_to_try = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash"]
                 
                 for model_name in models_to_try:
-                    for attempt in range(2):  # 2 retries per model
-                        try:
-                            response = client.models.generate_content(
-                                model=model_name,
-                                contents=prompt,
-                                config=types.GenerateContentConfig(
-                                    system_instruction=SYSTEM_INSTRUCTION,
-                                    temperature=0.3,
-                                ),
-                            )
+                    try:
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents=prompt,
+                            config=types.GenerateContentConfig(
+                                system_instruction=SYSTEM_INSTRUCTION,
+                                temperature=0.3,
+                            ),
+                        )
+                        if response and response.text:
                             response_text = response.text
                             break
-                        except Exception as e:
-                            if "503" in str(e) or "UNAVAILABLE" in str(e):
-                                time.sleep(2)  # Wait 2 seconds before retry
-                                continue
-                            else:
-                                break
-                    if response_text:
-                        break
+                    except Exception as e:
+                        # Log error internally and try next fallback model
+                        continue
 
                 if response_text:
                     st.markdown(response_text)
                     st.session_state.messages.append({"role": "assistant", "content": response_text})
                 else:
-                    st.error("Server par traffic boht zyada hai. Baraye meharbani 10-15 seconds baad dobara try karein!")
+                    st.error("API response fail ho raha hai. Please check karein ke Streamlit Secrets mein GEMINI_API_KEY bilkul sahi set hai ya nahi.")
 
 # ==========================================
 # MODE 2: IMAGE GENERATOR
@@ -125,4 +123,4 @@ elif mode == "🎨 AI Image Generator":
                     for generated_image in result.generated_images:
                         st.image(generated_image.image.image_bytes, caption=img_prompt, use_column_width=True)
                 except Exception as e:
-                    st.error("Free Developer API keys currently restrict direct image generation via SDK (Enterprise platform mode required by Google). Please use the Text Assistant for study notes and MCQs!")
+                    st.error("Free Developer API keys currently restrict direct image generation via SDK. Please use the Text Assistant for study notes and MCQs!")
