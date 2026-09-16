@@ -16,16 +16,16 @@ st.write(
 )
 
 # Fetch API Key cleanly
-api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+raw_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
 
-if not api_key:
+if not raw_key:
     st.error("⚠️ GEMINI_API_KEY missing hai! Streamlit Cloud ke Secrets mein API key save karein.")
     st.stop()
 
-# Strip any accidental whitespace/newlines
-api_key = api_key.strip()
+# Remove spaces and formatting artifacts
+api_key = raw_key.strip().strip('"').strip("'")
 
-# Explicitly pass api_key to Client
+# Initialize SDK Client
 client = genai.Client(api_key=api_key)
 
 st.sidebar.header("🛠️ Choose Tool Mode")
@@ -57,7 +57,6 @@ if mode == "📚 Study Chatbot (Text / Notes / MCQs)":
                 response_text = None
                 last_error = None
                 
-                # Active standard models
                 models_to_try = ["gemini-2.5-flash", "gemini-1.5-flash"]
                 
                 for model_name in models_to_try:
