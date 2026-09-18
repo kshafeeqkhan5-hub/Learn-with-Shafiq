@@ -31,8 +31,9 @@ if prompt := st.chat_input("Ask anything about exams, syllabus, GK..."):
 
     with st.chat_message("assistant"):
         try:
+            # Universal dynamic free model endpoint
             response = client.chat.completions.create(
-                model="google/gemini-2.0-flash-lite-001:free",
+                model="openrouter/free",
                 messages=[
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.messages
