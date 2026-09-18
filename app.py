@@ -13,7 +13,7 @@ if not api_key:
     st.error("⚠️ Secrets mein OPENROUTER_API_KEY missing hai!")
     st.stop()
 
-# Initialize Client
+# Initialize OpenRouter Client
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=str(api_key).strip(),
@@ -32,7 +32,7 @@ if prompt := st.chat_input("Ask anything about exams, syllabus, GK..."):
     with st.chat_message("assistant"):
         try:
             response = client.chat.completions.create(
-                model="google/gemini-flash-1.5",
+                model="google/gemini-2.0-flash-exp:free",
                 messages=[
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.messages
