@@ -32,7 +32,7 @@ if prompt := st.chat_input("Ask anything about exams, syllabus, GK..."):
     with st.chat_message("assistant"):
         try:
             response = client.chat.completions.create(
-                model="google/gemini-2.0-flash-exp:free",
+                model="google/gemini-2.0-flash-lite-001:free",
                 messages=[
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.messages
